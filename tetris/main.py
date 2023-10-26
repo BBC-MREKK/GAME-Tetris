@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 from threading import Lock
+from abc import ABC, abstractmethod
 
 COLORS = ['gray', 'lightgreen', 'pink', 'blue', 'orange', 'purple']
 
@@ -26,6 +27,10 @@ class Tetris():
         self.game_over = False
         self.move_lock = Lock()
         self.reset_tetromino()
+
+    @abstractmethod
+    def draw(self):
+        pass
 
     def reset_tetromino(self):
         self.tetromino = random.choice(Tetris.TETROMINOS)[:]
