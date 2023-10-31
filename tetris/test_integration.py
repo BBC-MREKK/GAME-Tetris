@@ -1,23 +1,51 @@
+import unittest
 import tkinter as tk
-from main import Tetris, Application 
+from main import Tetris, Application
 
-def test_game_integration():
-    root = tk.Tk()
-    app = Application(master=root)
+class TestTetrisIntegration(unittest.TestCase):
+    def setUp(self):
+        self.root = tk.Tk()
+        self.app = Application(master=self.root)
     
-    assert app.tetris.level == 0
-    assert app.tetris.score == 0
-    assert not app.tetris.game_over
+    def tearDown(self):
+        self.root.destroy()
 
-    app.tetris.move(0, 1)
-    app.tetris.rotate()
-    
+    def test_tetris_initialization(self):
+        tetris = self.app.tetris
+        self.assertEqual(tetris.score, 0)
+        self.assertEqual(tetris.level, 0)
+        self.assertEqual(tetris.total_lines_eliminated, 0)
+        self.assertFalse(tetris.game_over)
+        self.assertIsNotNone(tetris.tetromino)
 
-    assert app.tetris.level >= 0
-    assert app.tetris.score >= 0
-    assert app.tetris.game_over in (True, False)
+    def test_tetris_move_and_rotate(self):
+        tetris = self.app.tetris
+        initial_tetromino_coords = tetris.get_tetromino_coords()
+        initial_tetromino_offset = tetris.tetromino_offset
 
-    root.destroy()
+        tetris.move(1, 0)
+        self.assertNotEqual(tetris.get_tetromino_coords(), initial_tetromino_coords)
+        self.assertNotEqual(tetris.tetromino_offset, initial_tetromino_offset)
+
+        tetris.rotate()
+        self.assertNotEqual(tetris.get_tetromino_coords(), initial_tetromino_coords)
+        self.assertNotEqual(tetris.tetromino_offset, initial_tetromino_offset)
+
+    def test_game_over_and_reset(self):
+        tetris = self.app.tetris
+        tetris.game_over = True
+        initial_tetromino_coords = tetris.get_tetromino_coords()
+        initial_tetromino_offset = tetris.tetromino_offset
+
+        tetris.move(1, 0)
+        tetris.rotate()
+        self.assertEqual(tetris.get_tetromino_coords(), initial_tetromino_coords)
+        self.assertEqual(tetris.tetromino_offset, initial_tetromino_offset)
+
+        tetris.reset_tetromino()
+        self.assertFalse(tetris.game_over)
+        self.assertNotEqual(tetris.get_tetromino_coords(), initial_tetromino_coords)
+        self.assertNotEqual(tetris.tetromino_offset, initial_tetromino_offset)
 
 if __name__ == '__main__':
-    test_game_integration()
+    unittest.main()
